@@ -15,7 +15,7 @@ interface EnvConfig {
     // GOOGLE_CLIENT_ID: string,
     // GOOGLE_CALLBACK_URL: string,
     // EXPRESS_SESSION_SECRET: string,
-    // FRONTEND_URL: string,
+    FRONTEND_URL: string,
     SUPER_ADMIN_EMAIL: string,
     SUPER_ADMIN_PASSWORD: string,
     // CLOUDINARY_CLOUD_NAME: string,
@@ -37,7 +37,7 @@ interface EnvConfig {
 }
 
 const loadEnvVariables = (): EnvConfig => {
-    const requiredVariables: string[] = ["PORT", "DB_URL", "NODE_ENV", "JWT_ACCESS_SECRET", "JWT_ACCESS_EXPIRES", "JWT_REFRESH_SECRET", "JWT_REFRESH_EXPIRES", "BCRYPT_SALT_ROUND", "SUPER_ADMIN_EMAIL", "SUPER_ADMIN_PASSWORD"]
+    const requiredVariables: string[] = ["PORT", "DB_URL", "NODE_ENV", "JWT_ACCESS_SECRET", "JWT_ACCESS_EXPIRES", "JWT_REFRESH_SECRET", "JWT_REFRESH_EXPIRES", "BCRYPT_SALT_ROUND", "SUPER_ADMIN_EMAIL", "SUPER_ADMIN_PASSWORD", "FRONTEND_URL"]
 
     requiredVariables.forEach(key => {
         if (!process.env[key]) {
@@ -58,7 +58,7 @@ const loadEnvVariables = (): EnvConfig => {
         // GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID as string,
         // GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL as string,
         // EXPRESS_SESSION_SECRET: process.env.EXPRESS_SESSION_SECRET as string,
-        // FRONTEND_URL: process.env.FRONTEND_URL as string,
+        FRONTEND_URL: process.env.FRONTEND_URL as string,
         SUPER_ADMIN_EMAIL: process.env.SUPER_ADMIN_EMAIL as string,
         SUPER_ADMIN_PASSWORD: process.env.SUPER_ADMIN_PASSWORD as string,
         // CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME as string,
