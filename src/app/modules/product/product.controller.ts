@@ -32,8 +32,35 @@ const getAllProducts = catchAsync(async (req: Request, res: Response, next: Next
 })
 
 
+const deleteProduct = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const productId = req.params.id;
+
+    const result = await ProductServices.deleteProduct(productId)
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "Product deleted successfully!",
+        data: result,
+    })
+})
+
+
+const getSingleProduct = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const productId = req.params.id;
+
+    const result = await ProductServices.getSingleProduct(productId)
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "Product retrivied successfully!",
+        data: result,
+    })
+})
+
 
 export const ProductController = {
     createProduct,
-    getAllProducts
+    getAllProducts,
+    deleteProduct,
+    getSingleProduct
 }

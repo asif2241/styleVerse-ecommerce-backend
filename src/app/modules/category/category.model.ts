@@ -4,7 +4,9 @@ import { ICategory } from "./category.interface";
 const categorySchema = new Schema<ICategory>({
     name: {
         type: String,
-        required: true
+        required: true,
+        trim: true,
+        uppercase: true,
     },
     parent: {
         type: Schema.Types.ObjectId,

@@ -9,7 +9,7 @@ const createCategory = async (payload: Partial<ICategory>, decodedToken: JwtPayl
 
     // Check if category exists with same name AND same parent
     const isCategoryExist = await Category.findOne({
-        name: payload.name,
+        name: payload.name?.toUpperCase(),
         parent: payload.parent || null
     });
 
@@ -27,7 +27,7 @@ const createCategory = async (payload: Partial<ICategory>, decodedToken: JwtPayl
 
 
 const getAllCategories = async () => {
-    const categories = await Category.find().lean();
+    const categories = await Category.find({ isActive: true }).lean();
 
     const categoryMap: Record<string, any> = {};
 
@@ -68,6 +68,7 @@ const updateCategory = async (id: string, payload: Partial<ICategory>) => {
     });
 };
 
+//will update this later, it should be soft delete 
 const deleteCategory = async (id: string) => {
     return await Category.findByIdAndDelete(id);
 };

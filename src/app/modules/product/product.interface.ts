@@ -1,4 +1,3 @@
-import { Types } from "mongoose";
 
 export interface sizeVariantDTO {
     size: string,
@@ -32,7 +31,7 @@ export interface IProduct {
     description: string,
     price: number,
     discountPrice?: number,
-    category: Types.ObjectId;
+    category: string;
     brand?: string,
     sizes: sizeVariantDTO[],
     images: string[],

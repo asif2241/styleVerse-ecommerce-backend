@@ -42,8 +42,7 @@ const productSchema = new Schema<IProduct>(
         discountPrice: Number,
 
         category: {
-            type: Schema.Types.ObjectId,
-            ref: "Category",
+            type: String,
             required: true,
         },
 
@@ -81,6 +80,7 @@ const productSchema = new Schema<IProduct>(
             type: String,
             required: true,
             unique: true,
+
             uppercase: true,
         },
 
@@ -95,19 +95,19 @@ const productSchema = new Schema<IProduct>(
 /* ----------------------------------------------
    CREATE: auto-generate unique slug
 ------------------------------------------------- */
-productSchema.pre("save", async function () {
-    if (this.isModified("title") || !this.slug) {
-        const baseSlug = this.title.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
-        let slug = baseSlug;
-        let counter = 1;
+// productSchema.pre("save", async function () {
+//     if (this.isModified("title") || !this.slug) {
+//         const baseSlug = this.title.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
+//         let slug = baseSlug;
+//         let counter = 1;
 
-        while (await Product.exists({ slug, _id: { $ne: this._id } })) {
-            slug = `${baseSlug}-${counter++}`;
-        }
+//         while (await Product.exists({ slug, _id: { $ne: this._id } })) {
+//             slug = `${baseSlug}-${counter++}`;
+//         }
 
-        this.slug = slug;
-    }
-});
+//         this.slug = slug;
+//     }
+// });
 
 
 
@@ -121,7 +121,6 @@ productSchema.pre("save", async function () {
         let slug = baseSlug;
         let counter = 1;
 
-        // Check for duplicate slugs, excluding current document
         while (await Product.exists({ slug, _id: { $ne: this._id } })) {
             slug = `${baseSlug}-${counter}`;
             counter++;
@@ -139,20 +138,22 @@ productSchema.pre("findOneAndUpdate", async function () {
             .toLowerCase()
             .replace(/ /g, "-")
             .replace(/[^\w-]+/g, "");
+
         let slug = baseSlug;
         let counter = 1;
 
-        // Exclude current doc
         const currentDoc = await this.model.findOne(this.getQuery());
 
         while (await Product.exists({ slug, _id: { $ne: currentDoc?._id } })) {
-            slug = `${baseSlug}-${counter++}`;
+            slug = `${baseSlug}-${counter}`;
+            counter++;
         }
 
         update.slug = slug;
         this.setUpdate(update);
     }
 });
+
 
 
 
