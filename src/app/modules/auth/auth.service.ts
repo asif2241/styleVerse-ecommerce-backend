@@ -36,7 +36,8 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
     const { password: pass, ...rest } = isUserExists.toObject()
 
     return {
-        userTokens,
+        accessToken: userTokens.accessToken,
+        refreshToken: userTokens.refreshToken,
         user: rest
     }
 }

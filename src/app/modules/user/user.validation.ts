@@ -63,7 +63,7 @@ export const updateUserZodSchema = z.object({
         .optional(),
 
     role: z
-        .nativeEnum(Role, {
+        .enum(Role, {
             error: "Invalid Role Type"
         })
         .optional(),
