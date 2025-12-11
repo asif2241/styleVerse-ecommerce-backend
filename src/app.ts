@@ -37,6 +37,11 @@ app.get("/", (req: Request, res: Response) => {
         message: "Welcome to Parcel Delivery System Backend"
     })
 })
+// app.post("/api/v1/test", (req, res) => {
+//     console.log(req.body);
+//     res.send("OK");
+// });
+
 
 app.use(globalErrorHandler)
 app.use(notFound)

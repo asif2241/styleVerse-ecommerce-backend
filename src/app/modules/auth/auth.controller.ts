@@ -12,7 +12,12 @@ import { envVars } from "../../config/env";
 const credentialsLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const loginInfo = await AuthServices.credentialsLogin(req.body);
 
-    const { userTokens, user } = loginInfo;
+    const { accessToken, refreshToken, user } = loginInfo;
+
+    const userTokens = {
+        accessToken,
+        refreshToken
+    }
 
     setAuthCookie(res, userTokens);
 
@@ -21,8 +26,8 @@ const credentialsLogin = catchAsync(async (req: Request, res: Response, next: Ne
         statusCode: 200,
         message: "User logged in successfully",
         data: {
-            accessToken: userTokens.accessToken,
-            refreshToken: userTokens.refreshToken,
+            accessToken,
+            refreshToken,
             user: user
         }
     })
