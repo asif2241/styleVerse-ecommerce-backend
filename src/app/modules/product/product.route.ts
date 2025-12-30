@@ -13,5 +13,6 @@ ProductRoutes.post("/create",
 
 ProductRoutes.get("/", ProductController.getAllProducts)
 
-ProductRoutes.get("/:id", ProductController.getSingleProduct)
+// ProductRoutes.get("/:id", ProductController.getSingleProduct)
+ProductRoutes.get("/:slug", ProductController.getSingleProductBySlug)
 ProductRoutes.delete("/:id", ProductController.deleteProduct)

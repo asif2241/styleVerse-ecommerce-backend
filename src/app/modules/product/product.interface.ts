@@ -38,7 +38,7 @@ export interface IProduct {
     color: string,
     material?: string,
     gender: GENDER,
-    averageRating?: string,
+    averageRating?: number,
     isFeatured: boolean,
     sku: string,
     isDeleted: boolean,

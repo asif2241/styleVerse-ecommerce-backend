@@ -9,6 +9,7 @@ import AppError from "../../errorHelpers/AppError";
 import { generateTransactionId } from "../../utils/generateTransactionId";
 import { ISSLCommerz } from "../sslCommerz/sslCommerz.interface";
 import { SSLService } from "../sslCommerz/sslCommerz.service";
+import { User } from "../user/user.model";
 
 
 const createOrder = async (payload: Partial<IOrder>, userId: string) => {
@@ -20,7 +21,7 @@ const createOrder = async (payload: Partial<IOrder>, userId: string) => {
     session.startTransaction();
 
     try {
-        // const user = await User.findById(userId);
+        const user = await User.findById(userId);
 
         // if (!user?.phone || !user.address) {
         //     throw new AppError(
@@ -28,6 +29,12 @@ const createOrder = async (payload: Partial<IOrder>, userId: string) => {
         //         "Please update your profile with phone and address to place an order."
         //     );
         // }
+        if (!user) {
+            throw new AppError(
+                403,
+                "Please login first to create an order"
+            );
+        }
 
 
         if (!payload.products || payload.products.length === 0) {
@@ -65,7 +72,7 @@ const createOrder = async (payload: Partial<IOrder>, userId: string) => {
                 { payment: payment[0]._id },
                 { new: true, runValidators: true, session }
             )
-            .populate("user", "name email phone address")
+            .populate("user", "name email")
             .populate("products.product", "title images price discountPrice brand category")
             .populate("payment");
 
@@ -73,13 +80,13 @@ const createOrder = async (payload: Partial<IOrder>, userId: string) => {
             throw new AppError(404, "Order not found after creation.");
         }
 
-        const userInfo = updatedOrder.user as any;
+        // const userInfo = updatedOrder.user as any;
 
         const sslPayload: ISSLCommerz = {
-            address: userInfo.address,
-            email: userInfo.email,
-            phoneNumber: userInfo.phone,
-            name: userInfo.name,
+            address: payload.shippingAddress as string,
+            email: payload.email as string,
+            phoneNumber: payload.phone as string,
+            name: payload.name as string,
             amount: finalAmount,
             transactionId: transactionId
         };

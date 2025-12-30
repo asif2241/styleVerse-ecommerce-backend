@@ -57,10 +57,23 @@ const getSingleProduct = catchAsync(async (req: Request, res: Response, next: Ne
     })
 })
 
+const getSingleProductBySlug = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const slug = req.params.slug;
+
+    const result = await ProductServices.getSingleProductBySlug(slug)
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "Product retrivied successfully!",
+        data: result,
+    })
+})
+
 
 export const ProductController = {
     createProduct,
     getAllProducts,
     deleteProduct,
-    getSingleProduct
+    getSingleProduct,
+    getSingleProductBySlug
 }

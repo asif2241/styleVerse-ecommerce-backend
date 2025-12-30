@@ -23,7 +23,10 @@ export interface IOrder {
     deliveryCharge: number;
     finalAmount: number;
     status: ORDER_STATUS;
-    shippingAddress: string;
+    shippingAddress?: string;
+    phone?: string,
+    email?: string,
+    name?: string,
     createdAt?: Date;
     updatedAt?: Date;
     payment?: Types.ObjectId;

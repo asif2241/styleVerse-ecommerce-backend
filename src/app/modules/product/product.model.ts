@@ -68,7 +68,7 @@ const productSchema = new Schema<IProduct>(
 
         averageRating: {
             type: Number,
-            default: 0,
+            default: 4,
         },
 
         isFeatured: {
@@ -92,22 +92,7 @@ const productSchema = new Schema<IProduct>(
     { timestamps: true }
 );
 
-/* ----------------------------------------------
-   CREATE: auto-generate unique slug
-------------------------------------------------- */
-// productSchema.pre("save", async function () {
-//     if (this.isModified("title") || !this.slug) {
-//         const baseSlug = this.title.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
-//         let slug = baseSlug;
-//         let counter = 1;
 
-//         while (await Product.exists({ slug, _id: { $ne: this._id } })) {
-//             slug = `${baseSlug}-${counter++}`;
-//         }
-
-//         this.slug = slug;
-//     }
-// });
 
 
 

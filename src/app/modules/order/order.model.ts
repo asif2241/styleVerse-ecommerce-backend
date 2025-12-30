@@ -73,7 +73,15 @@ const OrderSchema = new Schema<IOrder>(
       type: String,
       required: true,
     },
-
+    phone: {
+      type: String,
+    },
+    email: {
+      type: String,
+    },
+    name: {
+      type: String,
+    },
     payment: {
       type: Schema.Types.ObjectId,
       ref: "Payment",
