@@ -7,3 +7,7 @@ export const OrderRoutes = Router();
 
 OrderRoutes.post("/", checkAuth(...Object.values(Role)),
     OrderController.createOrder)
+
+OrderRoutes.get("/all-orders", checkAuth(...Object.values(Role)), OrderController.getAllOrdersFromDB)
+
+OrderRoutes.get("/:orderId", checkAuth(...Object.values(Role)), OrderController.getSingleOrderById)

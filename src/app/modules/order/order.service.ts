@@ -10,6 +10,9 @@ import { generateTransactionId } from "../../utils/generateTransactionId";
 import { ISSLCommerz } from "../sslCommerz/sslCommerz.interface";
 import { SSLService } from "../sslCommerz/sslCommerz.service";
 import { User } from "../user/user.model";
+import { JwtPayload } from "jsonwebtoken";
+import { Role } from "../user/user.interface";
+import mongoose from "mongoose";
 
 
 const createOrder = async (payload: Partial<IOrder>, userId: string) => {
@@ -115,6 +118,129 @@ const createOrder = async (payload: Partial<IOrder>, userId: string) => {
     }
 };
 
+const getAllOrdersFromDB = async (query: Record<string, string>, decodedToken: JwtPayload) => {
+    const userRole = decodedToken.role;
+    const userId = decodedToken.userId;
+    // console.log(userId, userRole);
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const search = (query.search || "").trim();
+    const status = query.status?.toUpperCase();
+
+    // 1. Sort Logic
+    const allowedOrderSortFields = ["createdAt", "totalAmount", "finalAmount",];
+    const userInputSort = query.sort || "-createdAt";
+    const isDescending = userInputSort.startsWith("-");
+    let sortField = isDescending ? userInputSort.substring(1) : userInputSort;
+
+    if (!allowedOrderSortFields.includes(sortField)) {
+        sortField = "createdAt";
+    }
+    const sortOrder = isDescending ? -1 : 1;
+
+    // ----- BASE FILTER -----
+    // Unlike products, orders usually don't have "isDeleted", 
+    // but we can filter by specific fields if needed.
+    const matchFilter: any = {};
+
+    // If the user is a regular USER, they can only see their own orders.
+    // ADMIN and SUPER_ADMIN will bypass this and see everything.
+    if (userRole === Role.USER) {
+        matchFilter.user = new mongoose.Types.ObjectId(userId);
+    }
+
+    // ----- SEARCH (Name, Email, Phone, or Address) -----
+    if (search) {
+        matchFilter.$or = [
+            { name: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+            { phone: { $regex: search, $options: "i" } },
+            { shippingAddress: { $regex: search, $options: "i" } },
+        ];
+    }
+
+    // ----- STATUS FILTER -----
+    if (status && Object.values(ORDER_STATUS).includes(status as ORDER_STATUS)) {
+        matchFilter.status = status;
+    }
+
+
+
+    // Prepare Sort Object
+    const sortObj: any = {};
+    sortObj[sortField] = sortOrder;
+    // ----- PAGINATION & EXECUTION -----
+    // ----- BUILD AGGREGATION PIPELINE -----
+    const result = await Order.aggregate([
+        { $match: matchFilter },
+        {
+            $facet: {
+                metadata: [{ $count: "total" }],
+                data: [
+                    { $sort: sortObj }, // Ensure sorting happens before pagination inside facet
+                    { $skip: skip },
+                    { $limit: limit },
+                    {
+                        $lookup: {
+                            from: "products",
+                            localField: "products.product",
+                            foreignField: "_id",
+                            as: "productDetails"
+                        }
+                    }
+                ]
+            }
+        }
+    ]);
+
+    const orders = result[0]?.data || [];
+    const total = result[0]?.metadata[0]?.total || 0;
+
+    return {
+        data: orders,
+        meta: {
+            page,
+            limit,
+            totalPage: Math.ceil(total / limit),
+            total,
+        },
+    };
+};
+
+const getSingleOrderById = async (orderId: string, decodeToken: JwtPayload) => {
+
+
+
+    const result = await Order.findById(orderId)
+        .populate("user", "name email phone") // Gets basic user info
+        .populate({
+            path: "products.product", // Deep populate for the product model
+            select: "-_id title images price discountPrice" // Fields to include
+        })
+        .populate({
+            path: "payment",
+            select: "-_id transactionId status",
+        });
+
+    if (!result) {
+        throw new AppError(404, "Order not found!");
+    }
+
+    if (decodeToken.role === Role.USER) {
+        if (result.user._id !== decodeToken.userId) {
+            throw new AppError(403, "You are not permittend to view this order details")
+        }
+    }
+
+    return result;
+};
+
+
+
 export const OrderService = {
-    createOrder
+    createOrder,
+    getAllOrdersFromDB,
+    getSingleOrderById
 };

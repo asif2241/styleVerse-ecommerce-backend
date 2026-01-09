@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { deleteImageFromCLoudinary } from "../../config/cloudinary.config";
 import AppError from "../../errorHelpers/AppError";
 import { Category } from "../category/category.model";
 import { IProduct } from "./product.interface";
@@ -6,9 +7,9 @@ import { Product } from "./product.model";
 
 const createProduct = async (payload: IProduct) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { category, ...rest } = payload;
-    const searchedCategory = await Category.findOne({ name: category.toUpperCase() })
-    console.log(searchedCategory);
+    // const { category, ...rest } = payload;
+    // const searchedCategory = await Category.findOne({ name: category.toUpperCase() })
+    // console.log(searchedCategory);
     const product = await Product.create(payload)
 
     return product;
@@ -269,9 +270,55 @@ const getSingleProductBySlug = async (slug: string) => {
     return product;
 };
 
+export const updateProduct = async (
+    id: string,
+    payload: Partial<IProduct> & { images?: string[] },
+    files: Express.Multer.File[] = []
+) => {
+    const existingProduct = await Product.findById(id);
+    if (!existingProduct) throw new Error("Product not found");
 
+    // 1. Handle Images (Keep existing + Add new)
+    let keptImages: string[] = [];
+    if (payload.images) {
+        // Handle cases where payload.images might be a string or array
+        keptImages = Array.isArray(payload.images) ? payload.images : [payload.images as any];
+    } else {
+        // If images field isn't sent at all, assume we keep all current images
+        keptImages = existingProduct.images;
+    }
 
+    // 2. Identify and delete removed images from Cloudinary
+    const removedImages = existingProduct.images.filter(
+        (img: string) => !keptImages.includes(img)
+    );
 
+    for (const url of removedImages) {
+        await deleteImageFromCLoudinary(url);
+    }
+
+    // 3. Add new uploads
+    const newUploadedImages = files.map((file) => file.path);
+    const finalImages = [...keptImages, ...newUploadedImages];
+
+    // 4. Update the DB using the Division method (findByIdAndUpdate)
+    // We remove images from 'payload' to avoid conflict, then spread it
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { images, ...otherData } = payload;
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+        id,
+        {
+            $set: {
+                ...otherData,
+                images: finalImages
+            }
+        },
+        { new: true, runValidators: true }
+    );
+
+    return updatedProduct;
+};
 
 
 export const ProductServices = {
@@ -279,5 +326,6 @@ export const ProductServices = {
     getAllProducts,
     deleteProduct,
     getSingleProduct,
-    getSingleProductBySlug
+    getSingleProductBySlug,
+    updateProduct
 }

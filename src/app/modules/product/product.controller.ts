@@ -70,10 +70,29 @@ const getSingleProductBySlug = catchAsync(async (req: Request, res: Response, ne
 })
 
 
+const updateProduct = catchAsync(async (req, res) => {
+    const { id } = req.params;
+
+    const result = await ProductServices.updateProduct(
+        id,
+        req.body,
+        req.files as Express.Multer.File[]
+    );
+
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "Product updated successfully",
+        data: result,
+    });
+});
+
+
 export const ProductController = {
     createProduct,
     getAllProducts,
     deleteProduct,
     getSingleProduct,
-    getSingleProductBySlug
+    getSingleProductBySlug,
+    updateProduct
 }
