@@ -99,7 +99,11 @@ Make sure you have the following installed on your system:
    git clone https://github.com/asif2241/styleVerse-ecommerce-backend.git
    cd styleverse-ecommerce
    ```
-1. **To Run The Project**
+2. **Install The Dependencies**
+   ```bash
+   npm install
+   ```
+3. **To Run The Project**
    ```bash
    npm run dev
    ```
