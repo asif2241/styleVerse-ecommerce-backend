@@ -211,8 +211,7 @@ const getAllOrdersFromDB = async (query: Record<string, string>, decodedToken: J
 
 const getSingleOrderById = async (orderId: string, decodeToken: JwtPayload) => {
 
-
-
+    console.log(orderId);
     const result = await Order.findById(orderId)
         .populate("user", "name email phone") // Gets basic user info
         .populate({
@@ -229,8 +228,8 @@ const getSingleOrderById = async (orderId: string, decodeToken: JwtPayload) => {
     }
 
     if (decodeToken.role === Role.USER) {
-        if (result.user._id !== decodeToken.userId) {
-            throw new AppError(403, "You are not permittend to view this order details")
+        if (!result.user._id.equals(decodeToken.userId)) {
+            throw new AppError(403, "You are not permitted to view this order details");
         }
     }
 

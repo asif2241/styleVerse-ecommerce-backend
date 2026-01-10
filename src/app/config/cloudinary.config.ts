@@ -20,12 +20,12 @@ export const deleteImageFromCLoudinary = async (url: string) => {
 
         const match = url.match(regex);
 
-        console.log({ match });
+        // console.log({ match });
 
         if (match && match[1]) {
             const public_id = match[1];
             await cloudinary.uploader.destroy(public_id)
-            console.log(`File ${public_id} is deleted from cloudinary`);
+            // console.log(`File ${public_id} is deleted from cloudinary`);
 
         }
     } catch (error: any) {

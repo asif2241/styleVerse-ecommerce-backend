@@ -23,6 +23,7 @@ export interface IUser {
     email: string;
     password?: string;
     phone?: string;
+    profileImage?: string;
     address?: string;
     role: Role;
     isActive?: isActive;

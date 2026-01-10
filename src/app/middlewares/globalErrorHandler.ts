@@ -15,7 +15,7 @@ export const globalErrorHandler = async (err: any, req: Request, res: Response, 
         console.log(err);
     }
 
-    console.log({ file: req.files });
+    // console.log({ file: req.files });
     if (req.file) {
         await deleteImageFromCLoudinary(req.file.path)
     }
